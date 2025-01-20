@@ -1,0 +1,40 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential git zlib1g-dev zip unzip
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install python-for-android
+
+- name: Build APK
+      run: |
+        p4a apk --private . --package=org.example.mario --name "超级玛丽" --version 0.1 --bootstrap=sdl2 --requirements=python3,kivy --release --sign
+
+    - name: Upload APK
+      uses: actions/upload-artifact@v2
+      with:
+        name: super_mario.apk
+        path: ./dist/*.apk
